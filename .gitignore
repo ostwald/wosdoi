@@ -1,4 +1,5 @@
 *~
 *.bak
 .idea
-wosdoi.imi
+wosdoi.iml
+.DS_Store
