@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>DOI Checker</title>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <script src="base-script.js"></script>
+    <script src="model.js"></script>
+    <script src="mods-model.js"></script>
+    <script src="script.js"></script>
+    <link rel="shortcut icon" type="image/png" href="favicon.png">
+</head>
+<body>
+<h1>Find uncataloged DOIs in WOS text</h1>
+
+<div id="debug-wrapper" style="display:none;">
+    <h3>DOIs extracted from WOS Text</h3>
+    <pre id="debug"></pre>
+</div>
+
+<div id="accordion">
+<!--    <ul>
+        <li><a href="#wos-input">WOS Input</a></li>
+        <li><a href="#doi-report">DOI Report</a></li>
+    </ul>-->
+
+
+
+    <h2>Input from WOS</h2>
+    <div id="wos-input">
+        <h3>Paste WOS text here ...</h3>
+        <textarea type="text" name="wos-text" id="wos-text"></textarea>
+        <button type="button" class="control-button" id="go-button"> extract DOIs</button>
+    </div>
+
+    <h2>DOI Report</h2>
+    <div id="doi-report">
+        <h3>Previously Cataloged (<span id="cataloged-dois-count"></span>)</h3>
+        <ul id="cataloged-dois"></ul>
+        <h3>Not Yet Cataloged (<span id="not-cataloged-dois-count"></span>)</h3>
+        <ul id="not-cataloged-dois"></ul>
+        <textarea id="clip-area"></textarea>
+        <button type="button" class="control-button" id="copy-button" style="display:inline-block;">Copy not-yet cataloged DOIs to clipboard</button>
+    </div>
+</div>
+
+</body>
+<script>
+    $(function () {
+
+        $( "#accordion" ).accordion({
+            collapsible: true
+        });
+
+        // $('#wos-text').html(FAKE_WOS_TEXT);
+
+        $('#go-button')
+                .button()
+                .click(function () {
+                    var wos_text = $('#wos-text').val();
+                    var dois = get_dois(wos_text);
+                    if (dois.length) {
+                        do_search(dois);
+                        $('#accordion').accordion('option', {active: 1});
+                    }
+                    else {
+                        alert ("No DOIs found");
+                    }
+                })
+
+        $('#copy-button')
+                .button()
+                .click(function (event) {
+                    log ("what?")
+                    CopyToClipboard('#clip-area');
+                    log ("copied??")
+                })
+    })
+
+</script>

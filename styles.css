@@ -1,0 +1,69 @@
+body {
+    font-family:Arial;
+    margin:20px
+}
+
+.ui-widget {
+    font-size:.85em;
+}
+
+h3 {
+    color:blue;
+    margin:0;
+    /*font-family:helvetica;*/
+    font-size:1.0em;
+    font-family:Arial Black;
+}
+
+#accordion {
+    width:800px;
+}
+
+h2.ui-accordion-header {
+    color:gray;
+    font-family:Arial Black;
+}
+
+h2.ui-accordion-header[aria-selected="true"] {
+    background:blue;
+    color:white;
+}
+
+#debug-wrapper {
+    position:absolute;
+    right:10px;
+    padding:10px;
+    width:300px;
+    height:500px;
+    background:beige;
+}
+
+.fixed-width {
+    font-family:Andale Mono, Times;
+    padding:0 0 2px 0;
+}
+
+#doi-report {
+    height:600px;
+}
+
+#wos-text {
+    height:400px;
+    width:700px;
+}
+
+.control-button {
+    display:block;
+    margin: 10px 30px;
+    float:right;
+}
+
+.control-button:hover {
+    border-color:blue;
+    color:blue;
+}
+
+#clip-area {
+    position:absolute;
+    left:-1000px;
+}
