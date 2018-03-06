@@ -30,74 +30,114 @@ function show_matches (dois) {
 
 }
 
-// http://localhost:8080/osws/search/v1?q=doi:"10.1016/j.scitotenv.2017.03.262"&start=0&rows=10&output=json&sort=date desc&facet=true
 
 // var baseurl = 'http://localhost:8080/osws/search/v1';
 var baseurl = 'https://osws.ucar.edu/service/search/v1';
+// var baseurl = 'https://oswscl.dls.ucar.edu/service/search/v1';
+
 
 function do_search (dois) {
 
-    // MAKE THE URL
-    var url = baseurl;
+    // clear results
+    $('#progress').show();
+    $('#output').hide();
+    $('#not-cataloged-dois, #cataloged-dois').html('')
+    $('#not-cataloged-dois-count, #cataloged-dois-count').html('?')
 
+
+    log ("got " + dois.length + " dois!");
+
+    // MAKE THE URL
+
+    var batch_size = 150;
+    var i = 0;
+    var FOUND = {}
+    var reps = 0;
+    var max_reps = 10;
+
+    // for testing ..
     // dois = [
     //     '10.1016/j.scitotenv.2017.03.262',
     //     '10.3847/1538-4357/aa6f5f'
     // ]
 
-    var q = $.map(dois, function (doi, i) {
-        return 'doi:"' + doi + '"';
-    }).join(' OR ');
+    function get_batch (i, dois) {
+        log ("GET BATCH");
+        j = Math.min (i+batch_size, dois.length)
 
-    url += '?q=' + encodeURIComponent(q);
-    url += '&start=' + encodeURIComponent(0);
-    url += '&rows=' + encodeURIComponent(dois.length);
-    url += '&output=json';
+        var doi_batch = dois.slice(i, j)
+        log (" - i: " + i + ", j: " + j);
+        log("sending " + doi_batch.length + " dois!");
 
-    log ("url: " + url)
-
-    $.ajax({
-        url: url,
-        crossDomain: true,
-        context: $('#response-json'),
-        dataType: 'json'
-    }).done(function(data) {
-        // log (stringify(data))
-        var numFound, numShowing, response, serviceError;
-        try {
-            // log ("SERVICE RESPONSE\n" + stringify(data));
-            log ('instantiating ...')
-            response = new OSWSResponse (data);
-            if (response.error)
-                throw (response.error)
-            numFound = response.numFound;
-            numShowing = response.length;
-        } catch (error) {
-            log ("ERROR instantiating OSWSResponse: " + error)
-            response = null;
-            numFound = 0;
-            numShowing = 0;
-            serviceError = error;
+        if (reps > max_reps) {
+            log ("BAILING!! reps: " + reps)
+            return;
         }
 
-        log ('numFound!: ' + response.numFound);
-        log ('numShowing: ' + numShowing);
-        process_results(dois, response);
+        var q = $.map(doi_batch, function (doi, i) {
+            return 'doi:"' + doi + '"';
+        }).join(' OR ');
+        var url = baseurl;
+        url += '?q=' + encodeURIComponent(q);
+        url += '&start=' + encodeURIComponent(0);
+        url += '&rows=' + encodeURIComponent(dois.length);
+        url += '&output=json';
 
-        $('#tabs').tabs('option','active', 1);
+        log("url: " + url)
 
-        // $('#wos-input').hide()
-        // $('#doi-report').show()
+        $.ajax({
+            url: url,
+            crossDomain: true,
+            context: $('#response-json'),
+            dataType: 'json'
+        }).done(function (data) {
+            // log (stringify(data))
+            var numFound, numShowing, response, serviceError;
+            try {
+                // log ("SERVICE RESPONSE\n" + stringify(data));
+                log('instantiating ...')
+                response = new OSWSResponse(data);
+                if (response.error)
+                    throw (response.error)
+                numFound = response.numFound;
+                numShowing = response.length;
+            } catch (error) {
+                log("ERROR instantiating OSWSResponse: " + error)
+                response = null;
+                numFound = 0;
+                numShowing = 0;
+                serviceError = error;
+            }
 
-    })
-    .error (function (jqXHR, textStatus, errorThrown) {
-        log ('There was an AJAX error! textStatus: ' + textStatus +
-            ', errorThrown: ' + errorThrown);
-        log ('url: ' + url);
-        log ('responseText: ' + jqXHR.responseText);
-        var errMsg = "Unknown AJAX error";
-    })
-    
+            // log ('numFound!: ' + response.numFound);
+            // log ('numShowing: ' + numShowing);
+            tally_results(FOUND, response);
+
+            $('#tabs').tabs('option', 'active', 1);
+
+            // $('#wos-input').hide()
+            // $('#doi-report').show()
+
+            reps++;
+            i = j;
+            if (i >= dois.length) {
+                process_results(dois, FOUND)
+            }
+            else {
+                get_batch(i, dois);
+            }
+
+        })
+        .error(function (jqXHR, textStatus, errorThrown) {
+            log('There was an AJAX error! textStatus: ' + textStatus +
+                ', errorThrown: ' + errorThrown);
+            // log('url: ' + url);
+            log('responseText: ' + jqXHR.responseText.slice(0,1000));
+            // var errMsg = "Unknown AJAX error";
+        })
+    }
+    get_batch (0, dois);
+
 }
 
 function doi_link (doi) {
@@ -107,41 +147,46 @@ function doi_link (doi) {
         .html(doi);
 }
 
-function process_results(dois, response) {
-    // log ('process_results (' +  response.results.length + ') - ' + stringify(response.results));
-    log ('process_results (' +  response.results.length + ')');
-
-    // clear results
-    $('#not-cataloged-dois, #cataloged-dois').html('')
-    $('#not-cataloged-dois-count, #cataloged-dois-count').html('?')
+function tally_results (FOUND, response) {
+    log ('tally_results (' +  response.results.length + ')');
 
     var found = {}
     $.each(response.results, function (i, val) {
-        log (' --- ' + stringify(val))
+        // log (' --- ' + stringify(val))
         var osws_result = new OSWSModsResult (val);
         var doi = osws_result.doi;
         var pid = osws_result.PID;
         var ark = osws_result.ark;
-        log ('- ARK: ' + ark);
-        log ('- PID: ' + pid);
-        found[osws_result.doi] = osws_result.PID;
+        // log ('- ARK: ' + ark);
+        // log ('- PID: ' + pid);
+        FOUND[osws_result.doi] = osws_result;
+    });
+
+}
+
+function process_results (dois, FOUND) {
+    // log ('process_results (' +  response.results.length + ') - ' + stringify(response.results));
+    log ('process_results');
+    $('#progress').hide();
+    $('#output').show();
+     for (var doi in FOUND) {
+        var osws_result = FOUND[doi];
         $('#cataloged-dois')
             .append ($t('li')
                 .addClass('fixed-width')
                 .html(doi_link(osws_result.doi))
                 .append(' (PID: ')
                 .append($t('a')
-                    .prop('href', 'http://n2t.net/'+ark)
+                    .prop('href', 'http://n2t.net/'+osws_result.ark)
                     .prop('target', 'pid')
-                    .html(pid))
+                    .html(osws_result.PID))
                 .append(')'));
-    });
+    }
 
-    var found_dois = Object.keys(found)
+    var found_dois = Object.keys(FOUND)
     $('#cataloged-dois-count').html(found_dois.length)
 
-    log ("found dois: " + found_dois + '  ' + typeof (found_dois));
-    not_found = []
+    var not_found = []
     $.each(dois, function (i, doi) {
         if (found_dois.indexOf(doi) == -1) {
             not_found.push(doi)

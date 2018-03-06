@@ -40,12 +40,15 @@
 
     <h2>DOI Report</h2>
     <div id="doi-report">
-        <h3>Previously Cataloged (<span id="cataloged-dois-count"></span>)</h3>
-        <ul id="cataloged-dois"></ul>
-        <h3>Not Yet Cataloged (<span id="not-cataloged-dois-count"></span>)</h3>
-        <ul id="not-cataloged-dois"></ul>
-        <textarea id="clip-area"></textarea>
-        <button type="button" class="control-button" id="copy-button" style="display:inline-block;">Copy not-yet cataloged DOIs to clipboard</button>
+        <div id="progress" style="display:none;"><img src="spinner_1.gif"/></div>
+        <div id="output" style="display:none;">
+            <h3>Previously Cataloged (<span id="cataloged-dois-count"></span>)</h3>
+            <ul id="cataloged-dois"></ul>
+            <h3>Not Yet Cataloged (<span id="not-cataloged-dois-count"></span>)</h3>
+            <ul id="not-cataloged-dois"></ul>
+            <textarea id="clip-area"></textarea>
+            <button type="button" class="control-button" id="copy-button" style="display:inline-block;">Copy not-yet cataloged DOIs to clipboard</button>
+         </div>
     </div>
 </div>
 

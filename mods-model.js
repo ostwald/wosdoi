@@ -91,7 +91,7 @@ var ModsName = Class.extend({
 
 var OSWSModsResult = Result.extend({
     init: function (result) {
-        log ("OSWSModsResult")
+        // log ("OSWSModsResult")
         this.result = result;
 //        slog(result)
         this.PID = getContent(this.result.head.PID);

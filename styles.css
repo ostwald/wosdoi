@@ -29,6 +29,11 @@ h2.ui-accordion-header[aria-selected="true"] {
     color:white;
 }
 
+#progress img {
+    height:50px;
+    align:center;
+}
+
 #debug-wrapper {
     position:absolute;
     right:10px;
