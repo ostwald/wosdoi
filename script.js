@@ -2,14 +2,22 @@
  * Created by ostwald on 12/27/17.
  */
 function get_dois(input) {
-    var n = input.match(/DI .*\n/g);
+
+    input = input.trim()
+
+    var last_char = input.charAt(input.length - 1)
+    if (last_char != '\n') {
+     input = input + '\n';
+     }
+
+    var n = input.match(/.*\n/g);
     var dois = []
     if (n != null) {
-        log("matches (" + n.length + ")");
 
         var dois = $.map(n, function (doi, i) {
-            // log ('i: ' + i + ' doi: ' + doi);
-            return doi.slice(3).trim();
+            if (doi.trim().length > 0) {
+                return doi.trim();
+                }
         });
     }
 
@@ -66,8 +74,7 @@ function do_search (dois) {
         j = Math.min (i+batch_size, dois.length)
 
         var doi_batch = dois.slice(i, j)
-        log (" - i: " + i + ", j: " + j);
-        log("sending " + doi_batch.length + " dois!");
+        log("sending " + doi_batch.length + " dois");
 
         if (reps > max_reps) {
             log ("BAILING!! reps: " + reps)
@@ -77,13 +84,15 @@ function do_search (dois) {
         var q = $.map(doi_batch, function (doi, i) {
             return 'doi:"' + doi + '"';
         }).join(' OR ');
+        q = "(" + q + ")";  // this is crucial
+
         var url = baseurl;
         url += '?q=' + encodeURIComponent(q);
         url += '&start=' + encodeURIComponent(0);
         url += '&rows=' + encodeURIComponent(dois.length);
         url += '&output=json';
 
-        log("url: " + url)
+//        log ("URL: " + url)
 
         $.ajax({
             url: url,
@@ -94,12 +103,13 @@ function do_search (dois) {
             // log (stringify(data))
             var numFound, numShowing, response, serviceError;
             try {
-                // log ("SERVICE RESPONSE\n" + stringify(data));
+//                 log ("SERVICE RESPONSE\n" + stringify(data));
                 log('instantiating ...')
                 response = new OSWSResponse(data);
                 if (response.error)
                     throw (response.error)
                 numFound = response.numFound;
+                log ("num_found: " + numFound)
                 numShowing = response.length;
             } catch (error) {
                 log("ERROR instantiating OSWSResponse: " + error)
@@ -115,7 +125,7 @@ function do_search (dois) {
 
             $('#tabs').tabs('option', 'active', 1);
 
-            // $('#wos-input').hide()
+            // $('#doi-input').hide()
             // $('#doi-report').show()
 
             reps++;

@@ -14,9 +14,15 @@
     <script src="mods-model.js"></script>
     <script src="script.js"></script>
     <link rel="shortcut icon" type="image/png" href="favicon.png">
+
+ <script src="canned_data.js"></script>
+
+
 </head>
 <body>
-<h1>Find uncataloged DOIs in WOS text</h1>
+<h1>DOI Checker</h1>
+<div id="tagline">Determine weather specified DOIs have been
+    cataloged in OpenSky</div>
 
 <div id="debug-wrapper" style="display:none;">
     <h3>DOIs extracted from WOS Text</h3>
@@ -24,17 +30,11 @@
 </div>
 
 <div id="accordion">
-<!--    <ul>
-        <li><a href="#wos-input">WOS Input</a></li>
-        <li><a href="#doi-report">DOI Report</a></li>
-    </ul>-->
-
-
 
     <h2>Input from WOS</h2>
-    <div id="wos-input">
-        <h3>Paste WOS text here ...</h3>
-        <textarea type="text" name="wos-text" id="wos-text"></textarea>
+    <div id="doi-input">
+        <h3>Paste one or more DOIs text here, each on a separate line ...</h3>
+        <textarea type="text" name="doi-input-text" id="doi-input-text"></textarea>
         <button type="button" class="control-button" id="go-button"> extract DOIs</button>
     </div>
 
@@ -60,12 +60,14 @@
             collapsible: true
         });
 
-        // $('#wos-text').html(FAKE_WOS_TEXT);
+        if (typeof (CANNED_DATA) != 'undefined' && CANNED_DATA != null) {
+            $('#doi-input-text').html(CANNED_DATA);
+        }
 
         $('#go-button')
                 .button()
                 .click(function () {
-                    var wos_text = $('#wos-text').val();
+                    var wos_text = $('#doi-input-text').val();
                     var dois = get_dois(wos_text);
                     if (dois.length) {
                         do_search(dois);
@@ -79,7 +81,6 @@
         $('#copy-button')
                 .button()
                 .click(function (event) {
-                    log ("what?")
                     CopyToClipboard('#clip-area');
                     log ("copied??")
                 })
