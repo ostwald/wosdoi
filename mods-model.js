@@ -430,7 +430,7 @@ var OSWSModsResult = Result.extend({
                     .append($('<span>')
                         .html(doi)
                         .css({'white-space': 'nowrap'}))
-                    .attr('href', 'https://dx.doi.org/' + doi)
+                    .attr('href', 'https://doi.org/' + doi)
                     .attr('target', 'doi')
                     .attr('title', 'Go to resolved Doi'))
         })();
