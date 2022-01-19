@@ -196,9 +196,14 @@ function process_results (dois, FOUND) {
     var found_dois = Object.keys(FOUND)
     $('#cataloged-dois-count').html(found_dois.length)
 
+    var lower_case_found_dois = $(found_dois).map (function (i, doi) {
+                                   return doi.toLowerCase();
+                               }).get();  // get returns a vanilla list
+
     var not_found = []
+
     $.each(dois, function (i, doi) {
-        if (found_dois.indexOf(doi) == -1) {
+        if (lower_found_dois.indexOf(doi.toLowerCase()) == -1) {
             not_found.push(doi)
             $('#not-cataloged-dois').append($t('li')
                 .addClass('fixed-width')
