@@ -50,7 +50,7 @@ function do_search (dois) {
     $('#progress').show();
     $('#output').hide();
     $('#not-cataloged-dois, #cataloged-dois').html('')
-    $('#not-cataloged-dois-count, #cataloged-dois-count').html('?')
+    $('#not-cataloged-dois-count, #cataloged-dois-count').html('0')
 
 
     log ("got " + dois.length + " dois!");
@@ -203,7 +203,7 @@ function process_results (dois, FOUND) {
     var not_found = []
 
     $.each(dois, function (i, doi) {
-        if (lower_found_dois.indexOf(doi.toLowerCase()) == -1) {
+        if (lower_case_found_dois.indexOf(doi.toLowerCase()) == -1) {
             not_found.push(doi)
             $('#not-cataloged-dois').append($t('li')
                 .addClass('fixed-width')
