@@ -152,7 +152,7 @@ function do_search (dois) {
 
 function doi_link (doi) {
     return $t('a')
-        .prop('href', 'https://dx.doi.org/'+doi)
+        .prop('href', 'https://doi.org/'+doi)
         .prop('target', 'doi')
         .html(doi);
 }
